@@ -1,65 +1,162 @@
 import Image from "next/image";
+import Link from "next/link";
+import { Calendar, MapPin, Users, Coffee, Award, BadgeCheck, ArrowRight, Mail, CalendarDays } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+    <div className="min-h-screen bg-[#faf8f0]">
+      {/* Hero — NYC blue band */}
+      <header className="relative overflow-hidden bg-gradient-to-br from-[#0066b3] via-[#0077c8] to-[#004d8c] text-white">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.06\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-80" />
+        <div className="relative mx-auto max-w-4xl px-4 py-12 text-center sm:px-6 sm:py-16 lg:px-8">
+          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+              src="/images/d79-logo.png"
+              alt="District 79"
+              width={140}
+              height={56}
+              className="h-14 w-auto object-contain sm:h-16"
+              priority
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <div className="h-10 w-px shrink-0 bg-white/30 sm:h-12" aria-hidden />
+            <Image
+              src="/images/nycpublicshools.png"
+              alt="NYC Public Schools"
+              width={180}
+              height={56}
+              className="h-14 w-auto object-contain sm:h-16"
+              priority
+            />
+          </div>
+          <h1 className="mt-8 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl lg:leading-tight">
+            Week Mixer: Borough Hall Bash
+          </h1>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-6 sm:gap-8">
+            <span className="inline-flex items-center gap-2 text-lg text-white/95 sm:text-xl">
+              <Calendar className="h-5 w-5 shrink-0 text-white/90" aria-hidden />
+              Thursday, February 26 — 2:00 PM to 4:00 PM
+            </span>
+            <span className="hidden sm:inline h-6 w-px bg-white/30" aria-hidden />
+            <span className="inline-flex items-center gap-2 text-lg font-semibold text-white sm:text-xl">
+              <MapPin className="h-5 w-5 shrink-0" aria-hidden />
+              Brooklyn Borough Hall
+            </span>
+          </div>
         </div>
+      </header>
+
+      <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        {/* About the event */}
+        <section className="mb-12">
+          <h2 className="flex items-center gap-2 text-xl font-semibold text-[#1a365d] sm:text-2xl">
+            <Users className="h-6 w-6 text-[#0066b3]" aria-hidden />
+            Join us
+          </h2>
+          <p className="mt-3 leading-relaxed text-[#2d3748]">
+            District 79 invites you to the Week Mixer: Borough Hall Bash — a
+            chance to connect with colleagues across programs and boroughs,
+            celebrate our work, and enjoy refreshments and conversation at
+            Brooklyn Borough Hall.
+          </p>
+          <ul className="mt-4 space-y-3 text-[#2d3748]">
+            <li className="flex items-start gap-3">
+              <Coffee className="mt-0.5 h-5 w-5 shrink-0 text-[#0066b3]" aria-hidden />
+              <span>Networking and light refreshments</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <Award className="mt-0.5 h-5 w-5 shrink-0 text-[#0066b3]" aria-hidden />
+              <span>Recognition of District 79 programs and staff</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#0066b3]" aria-hidden />
+              <span>Please bring a valid ID to enter Borough Hall</span>
+            </li>
+          </ul>
+        </section>
+
+        {/* Staff-only notice — light yellow card */}
+        <section className="mb-12 rounded-2xl border border-[#e8dcc4] bg-[#fffbf0] p-6 shadow-sm sm:p-7">
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-[#744210]">
+            <Mail className="h-5 w-5 shrink-0" aria-hidden />
+            Staff registration only
+          </h2>
+          <p className="mt-2 leading-relaxed text-[#744210]/90">
+            Registration is open to <strong>DOE staff only</strong>. You must
+            use your <strong>@schools.nyc.gov</strong> email address to register.
+            Registrations from other email domains cannot be accepted.
+          </p>
+        </section>
+
+        {/* Event details card */}
+        <section className="mb-12 rounded-2xl border border-[#e2e8e8] bg-white p-6 shadow-sm sm:p-7">
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-[#1a365d]">
+            <CalendarDays className="h-5 w-5 text-[#0066b3]" aria-hidden />
+            Event details
+          </h2>
+          <dl className="mt-4 grid gap-4 sm:grid-cols-1">
+            <div className="flex gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#eff6ff] text-[#0066b3]">
+                <Calendar className="h-5 w-5" aria-hidden />
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-[#0066b3]">Date & time</dt>
+                <dd className="mt-0.5 text-[#1a365d]">Thursday, February 26 — 2:00 PM–4:00 PM</dd>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#eff6ff] text-[#0066b3]">
+                <MapPin className="h-5 w-5" aria-hidden />
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-[#0066b3]">Location</dt>
+                <dd className="mt-0.5 text-[#1a365d]">Brooklyn Borough Hall</dd>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#eff6ff] text-[#0066b3]">
+                <Users className="h-5 w-5" aria-hidden />
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-[#0066b3]">Capacity</dt>
+                <dd className="mt-0.5 text-[#1a365d]">Limited capacity</dd>
+              </div>
+            </div>
+          </dl>
+        </section>
+
+        {/* CTAs */}
+        <section className="flex flex-col gap-4 sm:flex-row sm:justify-center sm:gap-5">
+          <Link
+            href="/register"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0066b3] px-7 py-4 text-base font-semibold text-white shadow-md transition hover:bg-[#004d8c] focus:outline-none focus:ring-2 focus:ring-[#0066b3] focus:ring-offset-2 focus:ring-offset-[#faf8f0]"
+          >
+            Register for the event
+            <ArrowRight className="h-5 w-5" aria-hidden />
+          </Link>
+        </section>
       </main>
+
+      <footer className="mt-16 border-t border-[#e8e4dc] bg-[#fffbf0]/50 py-8">
+        <div className="mx-auto flex max-w-4xl flex-col items-center justify-center gap-4 px-4 sm:flex-row sm:px-6 lg:px-8">
+          <Image
+            src="/images/d79-logo.png"
+            alt="District 79"
+            width={100}
+            height={40}
+            className="h-8 w-auto object-contain opacity-90"
+          />
+          <Image
+            src="/images/nycpublicshools.png"
+            alt="NYC Public Schools"
+            width={120}
+            height={40}
+            className="h-8 w-auto object-contain opacity-90"
+          />
+          <span className="text-center text-sm text-[#4a5568]">
+            NYC Department of Education
+          </span>
+        </div>
+      </footer>
     </div>
   );
 }
