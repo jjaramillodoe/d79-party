@@ -3,7 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
-import { BOROS } from "@/types/registration";
+import { Pencil, Trash2 } from "lucide-react";
+import { BOROS, DISTRICT_79_PROGRAMS } from "@/types/registration";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -179,6 +180,41 @@ export default function AdminRegistrationsPage() {
     URL.revokeObjectURL(url);
   }
 
+  function getAuthParams() {
+    const s = submittedSecret ?? secret;
+    return s ? `?secret=${encodeURIComponent(s)}` : "";
+  }
+
+  async function handleDelete(r: RegistrationRow) {
+    if (!confirm(`Delete registration for ${r.firstName} ${r.lastName}?`)) return;
+    const res = await fetch(`/api/admin/registrations/${r._id}${getAuthParams()}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      alert("Failed to delete. " + ((await res.json()).error ?? ""));
+      return;
+    }
+    fetchData();
+  }
+
+  const [editing, setEditing] = useState<RegistrationRow | null>(null);
+
+  async function handleSaveEdit(updates: Partial<RegistrationRow>) {
+    if (!editing) return;
+    const res = await fetch(`/api/admin/registrations/${editing._id}${getAuthParams()}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updates),
+    });
+    if (!res.ok) {
+      const json = await res.json();
+      alert("Failed to update. " + (json.error ?? ""));
+      return;
+    }
+    setEditing(null);
+    fetchData();
+  }
+
   if (submittedSecret === null) {
     return (
       <div className="min-h-screen bg-[#faf8f0]">
@@ -330,6 +366,7 @@ export default function AdminRegistrationsPage() {
                       <TableHead>Email</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Created</TableHead>
+                      <TableHead className="w-[100px]">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -363,6 +400,28 @@ export default function AdminRegistrationsPage() {
                             ? new Date(r.createdAt).toLocaleString()
                             : ""}
                         </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-[#0066b3] hover:text-[#004d8c]"
+                              onClick={() => setEditing(r)}
+                              aria-label="Edit"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              onClick={() => handleDelete(r)}
+                              aria-label="Delete"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -380,6 +439,181 @@ export default function AdminRegistrationsPage() {
             Back to registration
           </Link>
         </p>
+      </div>
+
+      {editing && (
+        <EditRegistrationDialog
+          registration={editing}
+          onClose={() => setEditing(null)}
+          onSave={handleSaveEdit}
+        />
+      )}
+    </div>
+  );
+}
+
+function EditRegistrationDialog({
+  registration,
+  onClose,
+  onSave,
+}: {
+  registration: RegistrationRow;
+  onClose: () => void;
+  onSave: (updates: Partial<RegistrationRow>) => Promise<void>;
+}) {
+  const [form, setForm] = useState({ ...registration });
+  const [saving, setSaving] = useState(false);
+
+  const programs: string[] = [...DISTRICT_79_PROGRAMS];
+  if (!programs.includes(registration.program)) {
+    programs.unshift(registration.program);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await onSave({
+        firstName: form.firstName,
+        lastName: form.lastName,
+        program: form.program,
+        boro: form.boro,
+        title: form.title,
+        email: form.email,
+        status: form.status,
+      });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div
+        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="text-lg font-semibold text-[#1a365d]">
+          Edit registration
+        </h3>
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-[#1a365d]">
+                First name
+              </label>
+              <Input
+                value={form.firstName}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, firstName: e.target.value }))
+                }
+                required
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-[#1a365d]">
+                Last name
+              </label>
+              <Input
+                value={form.lastName}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, lastName: e.target.value }))
+                }
+                required
+              />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-[#1a365d]">
+              Program
+            </label>
+            <select
+              value={form.program}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, program: e.target.value }))
+              }
+              className="mt-1 block w-full rounded-xl border border-[#e2e8e8] bg-white px-4 py-2 text-sm text-[#1a365d] focus:border-[#0066b3] focus:outline-none focus:ring-2 focus:ring-[#0066b3]/20"
+            >
+              {programs.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-[#1a365d]">
+              Borough
+            </label>
+            <select
+              value={form.boro}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, boro: e.target.value }))
+              }
+              className="mt-1 block w-full rounded-xl border border-[#e2e8e8] bg-white px-4 py-2 text-sm text-[#1a365d] focus:border-[#0066b3] focus:outline-none focus:ring-2 focus:ring-[#0066b3]/20"
+            >
+              {BOROS.map((b) => (
+                <option key={b} value={b}>
+                  {b}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-[#1a365d]">
+              Title
+            </label>
+            <Input
+              value={form.title}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, title: e.target.value }))
+              }
+              required
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-[#1a365d]">
+              Email
+            </label>
+            <Input
+              type="email"
+              value={form.email}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, email: e.target.value }))
+              }
+              required
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-[#1a365d]">
+              Status
+            </label>
+            <select
+              value={form.status}
+              onChange={(e) =>
+                setForm((f) => ({
+                  ...f,
+                  status: e.target.value as "confirmed" | "waiting_list",
+                }))
+              }
+              className="mt-1 block w-full rounded-xl border border-[#e2e8e8] bg-white px-4 py-2 text-sm text-[#1a365d] focus:border-[#0066b3] focus:outline-none focus:ring-2 focus:ring-[#0066b3]/20"
+            >
+              <option value="confirmed">Confirmed</option>
+              <option value="waiting_list">Waiting list</option>
+            </select>
+          </div>
+          <div className="flex gap-2 pt-4">
+            <Button type="submit" disabled={saving}>
+              {saving ? "Saving…" : "Save"}
+            </Button>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   );
