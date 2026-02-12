@@ -53,7 +53,7 @@ export default function Home() {
             Join us
           </h2>
           <p className="mt-3 leading-relaxed text-[#2d3748]">
-            District 79 invites you to the Week Mixer: Borough Hall Bash — a
+            D79 Week Mixer invites you to the Week Mixer: Borough Hall Bash — a
             chance to connect with colleagues across programs and boroughs,
             celebrate our work, and enjoy refreshments and conversation at
             Brooklyn Borough Hall.
