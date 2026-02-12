@@ -78,10 +78,10 @@ export default function Home() {
         <section className="mb-12 rounded-2xl border border-[#e8dcc4] bg-[#fffbf0] p-6 shadow-sm sm:p-7">
           <h2 className="flex items-center gap-2 text-lg font-semibold text-[#744210]">
             <Mail className="h-5 w-5 shrink-0" aria-hidden />
-            Staff registration only
+            NYCPS District 79 staff only
           </h2>
           <p className="mt-2 leading-relaxed text-[#744210]/90">
-            Registration is open to <strong>DOE staff only</strong>. You must
+            Registration is open to <strong>NYCPS District 79 staff only</strong>. You must
             use your <strong>@schools.nyc.gov</strong> email address to register.
             Registrations from other email domains cannot be accepted.
           </p>
@@ -153,7 +153,7 @@ export default function Home() {
             className="h-8 w-auto object-contain opacity-90"
           />
           <span className="text-center text-sm text-[#4a5568]">
-            NYC Department of Education
+            NYC Public Schools District 79
           </span>
         </div>
       </footer>
