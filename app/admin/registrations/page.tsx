@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { Pencil, Trash2, Loader2, Users, UserCheck, Clock, TrendingUp } from "lucide-react";
@@ -17,6 +16,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface RegistrationRow {
   _id: string;
@@ -82,51 +97,6 @@ function registrationsToCsv(rows: RegistrationRow[]): string {
     );
   }
   return lines.join("\n");
-}
-
-function AdminHero() {
-  return (
-    <header className="relative overflow-hidden bg-gradient-to-br from-[#0066b3] via-[#0077c8] to-[#004d8c] text-white">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.06\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-80" />
-      <div className="relative mx-auto max-w-5xl px-4 py-10 text-center sm:px-6 sm:py-12">
-        <Link href="/" className="inline-block">
-          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8">
-            <Image
-              src="/images/d79-logo.png"
-              alt="District 79"
-              width={140}
-              height={56}
-              className="h-14 w-auto object-contain sm:h-16"
-              priority
-            />
-            <div className="h-10 w-px shrink-0 bg-white/30 sm:h-12" aria-hidden />
-            <Image
-              src="/images/nycpublicshools.png"
-              alt="NYC Public Schools"
-              width={180}
-              height={56}
-              className="h-14 w-auto object-contain sm:h-16"
-              priority
-            />
-          </div>
-        </Link>
-        <h1 className="mt-8 text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
-          Admin: Registrations
-        </h1>
-        <p className="mt-2 text-white/90">
-          Borough Hall Bash — view and export registrations
-        </p>
-        <p className="mt-2">
-          <Link
-            href="/"
-            className="text-sm font-medium text-white/80 underline hover:text-white"
-          >
-            ← Back to event
-          </Link>
-        </p>
-      </div>
-    </header>
-  );
 }
 
 export default function AdminRegistrationsPage() {
@@ -270,25 +240,24 @@ export default function AdminRegistrationsPage() {
 
   if (submittedSecret === null) {
     return (
-      <div className="min-h-screen bg-[#faf8f0]">
-        <AdminHero />
-        <div className="mx-auto max-w-md px-4 py-12 sm:px-6">
+      <div className="p-6">
+        <div className="mx-auto max-w-md">
           <Card>
             <CardHeader>
               <CardTitle>Sign in</CardTitle>
-              <p className="text-sm text-[#64748b]">
+              <p className="text-sm text-muted-foreground">
                 Enter the admin secret to view registrations.
               </p>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSecretSubmit} className="space-y-4">
                 <div>
-                  <label
+                  <Label
                     htmlFor="admin-secret"
-                    className="mb-1.5 block text-sm font-medium text-[#1a365d]"
+                    className="mb-1.5 block"
                   >
                     Secret
-                  </label>
+                  </Label>
                   <Input
                     id="admin-secret"
                     type="password"
@@ -311,10 +280,14 @@ export default function AdminRegistrationsPage() {
 
   if (loading && !data) {
     return (
-      <div className="min-h-screen bg-[#faf8f0]">
-        <AdminHero />
-        <div className="mx-auto max-w-7xl px-4 py-12 text-center text-[#64748b] sm:px-6 lg:max-w-[1400px]">
-          Loading…
+      <div className="p-6">
+        <div className="mx-auto max-w-7xl space-y-6 lg:max-w-[1400px]">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Skeleton key={i} className="h-24" />
+            ))}
+          </div>
+          <Skeleton className="h-64 w-full" />
         </div>
       </div>
     );
@@ -322,9 +295,8 @@ export default function AdminRegistrationsPage() {
 
   if (error && !data) {
     return (
-      <div className="min-h-screen bg-[#faf8f0]">
-        <AdminHero />
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:max-w-[1400px]">
+      <div className="p-6">
+        <div className="mx-auto max-w-7xl lg:max-w-[1400px]">
           <Card className="border-red-200 bg-red-50/50">
             <CardContent className="pt-6">
               <p className="text-red-700">{error}</p>
@@ -373,67 +345,66 @@ export default function AdminRegistrationsPage() {
   )[0];
 
   return (
-    <div className="min-h-screen bg-[#faf8f0]">
-      <AdminHero />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:max-w-[1400px]">
+    <div className="p-6">
+      <div className="mx-auto max-w-7xl space-y-6 lg:max-w-[1400px]">
         <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           <Card>
             <CardContent className="pt-4">
-              <div className="flex items-center gap-2 text-[#64748b]">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <Users className="h-4 w-4" />
                 <span className="text-xs font-medium">Total</span>
               </div>
-              <p className="mt-1 text-2xl font-bold text-[#1a365d]">
+              <p className="mt-1 text-2xl font-bold">
                 {totalRegistrations}
               </p>
-              <p className="text-xs text-[#64748b]">registrations</p>
+              <p className="text-xs text-muted-foreground">registrations</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-4">
-              <div className="flex items-center gap-2 text-[#64748b]">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <UserCheck className="h-4 w-4" />
                 <span className="text-xs font-medium">Confirmed</span>
               </div>
-              <p className="mt-1 text-2xl font-bold text-[#166534]">
+              <p className="mt-1 text-2xl font-bold text-green-600">
                 {totalConfirmed}
               </p>
-              <p className="text-xs text-[#64748b]">spots filled</p>
+              <p className="text-xs text-muted-foreground">spots filled</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-4">
-              <div className="flex items-center gap-2 text-[#64748b]">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <Clock className="h-4 w-4" />
                 <span className="text-xs font-medium">Waiting list</span>
               </div>
-              <p className="mt-1 text-2xl font-bold text-[#92400e]">
+              <p className="mt-1 text-2xl font-bold text-amber-600">
                 {totalWaiting}
               </p>
-              <p className="text-xs text-[#64748b]">registrations</p>
+              <p className="text-xs text-muted-foreground">registrations</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-4">
-              <div className="flex items-center gap-2 text-[#64748b]">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <TrendingUp className="h-4 w-4" />
                 <span className="text-xs font-medium">Spots left</span>
               </div>
-              <p className="mt-1 text-2xl font-bold text-[#0066b3]">
+              <p className="mt-1 text-2xl font-bold text-primary">
                 {spotsRemaining}
               </p>
-              <p className="text-xs text-[#64748b]">of {totalCapacity} total</p>
+              <p className="text-xs text-muted-foreground">of {totalCapacity} total</p>
             </CardContent>
           </Card>
           <Card className="col-span-2 sm:col-span-1">
             <CardContent className="pt-4">
-              <span className="text-xs font-medium text-[#64748b]">
+              <span className="text-xs font-medium text-muted-foreground">
                 Most by borough
               </span>
-              <p className="mt-1 font-semibold text-[#1a365d]">
+              <p className="mt-1 font-semibold">
                 {topBoro ? topBoro.boro : "—"}
               </p>
-              <p className="text-xs text-[#64748b]">
+              <p className="text-xs text-muted-foreground">
                 {topBoro
                   ? `${topBoro.confirmedCount + topBoro.waitingListCount} registrations`
                   : "No data"}
@@ -442,13 +413,13 @@ export default function AdminRegistrationsPage() {
           </Card>
           <Card className="col-span-2 sm:col-span-1">
             <CardContent className="pt-4">
-              <span className="text-xs font-medium text-[#64748b]">
+              <span className="text-xs font-medium text-muted-foreground">
                 Most by program
               </span>
-              <p className="mt-1 font-semibold text-[#1a365d] line-clamp-2">
+              <p className="mt-1 font-semibold line-clamp-2">
                 {topProgram ? topProgram[0] : "—"}
               </p>
-              <p className="text-xs text-[#64748b]">
+              <p className="text-xs text-muted-foreground">
                 {topProgram ? `${topProgram[1]} registrations` : "No data"}
               </p>
             </CardContent>
@@ -456,7 +427,7 @@ export default function AdminRegistrationsPage() {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <h2 className="text-xl font-semibold text-[#1a365d]">
+          <h2 className="text-xl font-semibold">
             Registrations by borough
           </h2>
           <div className="flex gap-2">
@@ -506,7 +477,7 @@ export default function AdminRegistrationsPage() {
                   <TableCell className="text-right">
                     {c.waitingListCount}
                   </TableCell>
-                  <TableCell className="text-right text-[#64748b]">
+                  <TableCell className="text-right text-muted-foreground">
                     {editingCapacity === c.boro ? (
                       <div className="flex items-center justify-end gap-1">
                         <input
@@ -522,7 +493,7 @@ export default function AdminRegistrationsPage() {
                           }}
                           onBlur={() => handleSaveCapacity(c.boro)}
                           autoFocus
-                          className="w-16 rounded border border-[#e2e8e8] px-2 py-1 text-right text-sm focus:border-[#0066b3] focus:outline-none focus:ring-1 focus:ring-[#0066b3]"
+                          className="w-16 rounded border border-input px-2 py-1 text-right text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                         />
                       </div>
                     ) : (
@@ -532,7 +503,7 @@ export default function AdminRegistrationsPage() {
                           setEditingCapacity(c.boro);
                           setCapacityValue(String(c.maxConfirmed));
                         }}
-                        className="rounded px-2 py-1 hover:bg-[#f1f5f9] focus:outline-none focus:ring-1 focus:ring-[#0066b3]"
+                        className="rounded px-2 py-1 hover:bg-accent focus:outline-none focus:ring-1 focus:ring-ring"
                         title="Click to edit capacity"
                       >
                         {c.maxConfirmed}
@@ -576,13 +547,13 @@ export default function AdminRegistrationsPage() {
                         <TableCell className="font-medium">
                           {r.firstName} {r.lastName}
                         </TableCell>
-                        <TableCell className="text-[#475569]">
+                        <TableCell className="text-muted-foreground">
                           {r.program}
                         </TableCell>
-                        <TableCell className="text-[#475569]">
+                        <TableCell className="text-muted-foreground">
                           {r.title}
                         </TableCell>
-                        <TableCell className="text-[#475569]">
+                        <TableCell className="text-muted-foreground">
                           {r.email}
                         </TableCell>
                         <TableCell>
@@ -609,7 +580,7 @@ export default function AdminRegistrationsPage() {
                               : "Waiting list"}
                           </button>
                         </TableCell>
-                        <TableCell className="text-[#64748b]">
+                        <TableCell className="text-muted-foreground">
                           {r.createdAt
                             ? new Date(r.createdAt).toLocaleString()
                             : ""}
@@ -619,7 +590,7 @@ export default function AdminRegistrationsPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-[#0066b3] hover:text-[#004d8c]"
+                              className="h-8 w-8 text-primary hover:text-primary/90"
                               onClick={() => setEditing(r)}
                               aria-label="Edit"
                             >
@@ -645,10 +616,10 @@ export default function AdminRegistrationsPage() {
           );
         })}
 
-        <p className="mt-8 text-center text-sm text-[#64748b]">
+        <p className="text-center text-sm text-muted-foreground">
           <Link
             href="/register"
-            className="font-medium text-[#0066b3] underline hover:no-underline"
+            className="font-medium text-primary underline hover:no-underline"
           >
             Back to registration
           </Link>
@@ -702,24 +673,17 @@ function EditRegistrationDialog({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <div
-        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className="text-lg font-semibold text-[#1a365d]">
-          Edit registration
-        </h3>
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Edit registration</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-[#1a365d]">
-                First name
-              </label>
+            <div className="space-y-2">
+              <Label htmlFor="edit-first">First name</Label>
               <Input
+                id="edit-first"
                 value={form.firstName}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, firstName: e.target.value }))
@@ -727,11 +691,10 @@ function EditRegistrationDialog({
                 required
               />
             </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-[#1a365d]">
-                Last name
-              </label>
+            <div className="space-y-2">
+              <Label htmlFor="edit-last">Last name</Label>
               <Input
+                id="edit-last"
                 value={form.lastName}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, lastName: e.target.value }))
@@ -740,47 +703,46 @@ function EditRegistrationDialog({
               />
             </div>
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-[#1a365d]">
-              Program
-            </label>
-            <select
+          <div className="space-y-2">
+            <Label>Program</Label>
+            <Select
               value={form.program}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, program: e.target.value }))
-              }
-              className="mt-1 block w-full rounded-xl border border-[#e2e8e8] bg-white px-4 py-2 text-sm text-[#1a365d] focus:border-[#0066b3] focus:outline-none focus:ring-2 focus:ring-[#0066b3]/20"
+              onValueChange={(v) => setForm((f) => ({ ...f, program: v }))}
             >
-              {programs.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {programs.map((p) => (
+                  <SelectItem key={p} value={p}>
+                    {p}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-[#1a365d]">
-              Borough
-            </label>
-            <select
+          <div className="space-y-2">
+            <Label>Borough</Label>
+            <Select
               value={form.boro}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, boro: e.target.value }))
-              }
-              className="mt-1 block w-full rounded-xl border border-[#e2e8e8] bg-white px-4 py-2 text-sm text-[#1a365d] focus:border-[#0066b3] focus:outline-none focus:ring-2 focus:ring-[#0066b3]/20"
+              onValueChange={(v) => setForm((f) => ({ ...f, boro: v }))}
             >
-              {BOROS.map((b) => (
-                <option key={b} value={b}>
-                  {b}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {BOROS.map((b) => (
+                  <SelectItem key={b} value={b}>
+                    {b}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-[#1a365d]">
-              Title
-            </label>
+          <div className="space-y-2">
+            <Label htmlFor="edit-title">Title</Label>
             <Input
+              id="edit-title"
               value={form.title}
               onChange={(e) =>
                 setForm((f) => ({ ...f, title: e.target.value }))
@@ -788,11 +750,10 @@ function EditRegistrationDialog({
               required
             />
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-[#1a365d]">
-              Email
-            </label>
+          <div className="space-y-2">
+            <Label htmlFor="edit-email">Email</Label>
             <Input
+              id="edit-email"
               type="email"
               value={form.email}
               onChange={(e) =>
@@ -801,34 +762,36 @@ function EditRegistrationDialog({
               required
             />
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-[#1a365d]">
-              Status
-            </label>
-            <select
+          <div className="space-y-2">
+            <Label>Status</Label>
+            <Select
               value={form.status}
-              onChange={(e) =>
+              onValueChange={(v) =>
                 setForm((f) => ({
                   ...f,
-                  status: e.target.value as "confirmed" | "waiting_list",
+                  status: v as "confirmed" | "waiting_list",
                 }))
               }
-              className="mt-1 block w-full rounded-xl border border-[#e2e8e8] bg-white px-4 py-2 text-sm text-[#1a365d] focus:border-[#0066b3] focus:outline-none focus:ring-2 focus:ring-[#0066b3]/20"
             >
-              <option value="confirmed">Confirmed</option>
-              <option value="waiting_list">Waiting list</option>
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="confirmed">Confirmed</SelectItem>
+                <SelectItem value="waiting_list">Waiting list</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <div className="flex gap-2 pt-4">
-            <Button type="submit" disabled={saving}>
-              {saving ? "Saving…" : "Save"}
-            </Button>
+          <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-          </div>
+            <Button type="submit" disabled={saving}>
+              {saving ? "Saving…" : "Save"}
+            </Button>
+          </DialogFooter>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
