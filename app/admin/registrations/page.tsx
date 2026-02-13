@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { Pencil, Trash2, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { BOROS, DISTRICT_79_PROGRAMS } from "@/types/registration";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -135,28 +136,37 @@ export default function AdminRegistrationsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (): Promise<boolean> => {
     const s = submittedSecret ?? secret;
-    if (!s && process.env.NODE_ENV === "production") return;
+    if (!s && process.env.NODE_ENV === "production") return false;
     setLoading(true);
     setError(null);
     try {
       const res = await fetch(
-        `/api/admin/registrations?secret=${encodeURIComponent(s)}`
+        `/api/admin/registrations?secret=${encodeURIComponent(s)}`,
+        { cache: "no-store" }
       );
       if (!res.ok) {
         if (res.status === 401) setError("Invalid or missing secret.");
         else setError("Failed to load registrations.");
-        return;
+        return false;
       }
       const json = await res.json();
       setData(json);
+      return true;
     } catch {
       setError("Failed to load registrations.");
+      return false;
     } finally {
       setLoading(false);
     }
   }, [submittedSecret, secret]);
+
+  async function handleRefresh() {
+    const ok = await fetchData();
+    if (ok) toast.success("Data refreshed");
+    else toast.error("Failed to refresh data");
+  }
 
   useEffect(() => {
     if (submittedSecret !== null) fetchData();
@@ -344,8 +354,20 @@ export default function AdminRegistrationsPage() {
             Registrations by borough
           </h2>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={fetchData}>
-              Refresh
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                  Refreshing…
+                </>
+              ) : (
+                "Refresh"
+              )}
             </Button>
             <Button
               size="sm"
