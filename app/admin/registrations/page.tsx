@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
-import { Pencil, Trash2, Loader2 } from "lucide-react";
+import { Pencil, Trash2, Loader2, Users, UserCheck, Clock, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { BOROS, DISTRICT_79_PROGRAMS } from "@/types/registration";
 import { Button } from "@/components/ui/button";
@@ -344,11 +344,117 @@ export default function AdminRegistrationsPage() {
   }
 
   const counts = data?.counts ?? [];
+  const registrations = data?.registrations ?? [];
+
+  const totalRegistrations = registrations.length;
+  const totalConfirmed = counts.reduce((s, c) => s + c.confirmedCount, 0);
+  const totalWaiting = counts.reduce((s, c) => s + c.waitingListCount, 0);
+  const totalCapacity = counts.reduce((s, c) => s + c.maxConfirmed, 0);
+  const spotsRemaining = totalCapacity - totalConfirmed;
+
+  const topBoro = counts.length
+    ? counts.reduce((a, b) =>
+        a.confirmedCount + a.waitingListCount >=
+        b.confirmedCount + b.waitingListCount
+          ? a
+          : b
+      )
+    : null;
+
+  const programCounts = registrations.reduce(
+    (acc, r) => {
+      acc[r.program] = (acc[r.program] ?? 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+  const topProgram = Object.entries(programCounts).sort(
+    (a, b) => b[1] - a[1]
+  )[0];
 
   return (
     <div className="min-h-screen bg-[#faf8f0]">
       <AdminHero />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:max-w-[1400px]">
+        <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          <Card>
+            <CardContent className="pt-4">
+              <div className="flex items-center gap-2 text-[#64748b]">
+                <Users className="h-4 w-4" />
+                <span className="text-xs font-medium">Total</span>
+              </div>
+              <p className="mt-1 text-2xl font-bold text-[#1a365d]">
+                {totalRegistrations}
+              </p>
+              <p className="text-xs text-[#64748b]">registrations</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-4">
+              <div className="flex items-center gap-2 text-[#64748b]">
+                <UserCheck className="h-4 w-4" />
+                <span className="text-xs font-medium">Confirmed</span>
+              </div>
+              <p className="mt-1 text-2xl font-bold text-[#166534]">
+                {totalConfirmed}
+              </p>
+              <p className="text-xs text-[#64748b]">spots filled</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-4">
+              <div className="flex items-center gap-2 text-[#64748b]">
+                <Clock className="h-4 w-4" />
+                <span className="text-xs font-medium">Waiting list</span>
+              </div>
+              <p className="mt-1 text-2xl font-bold text-[#92400e]">
+                {totalWaiting}
+              </p>
+              <p className="text-xs text-[#64748b]">registrations</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-4">
+              <div className="flex items-center gap-2 text-[#64748b]">
+                <TrendingUp className="h-4 w-4" />
+                <span className="text-xs font-medium">Spots left</span>
+              </div>
+              <p className="mt-1 text-2xl font-bold text-[#0066b3]">
+                {spotsRemaining}
+              </p>
+              <p className="text-xs text-[#64748b]">of {totalCapacity} total</p>
+            </CardContent>
+          </Card>
+          <Card className="col-span-2 sm:col-span-1">
+            <CardContent className="pt-4">
+              <span className="text-xs font-medium text-[#64748b]">
+                Most by borough
+              </span>
+              <p className="mt-1 font-semibold text-[#1a365d]">
+                {topBoro ? topBoro.boro : "—"}
+              </p>
+              <p className="text-xs text-[#64748b]">
+                {topBoro
+                  ? `${topBoro.confirmedCount + topBoro.waitingListCount} registrations`
+                  : "No data"}
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="col-span-2 sm:col-span-1">
+            <CardContent className="pt-4">
+              <span className="text-xs font-medium text-[#64748b]">
+                Most by program
+              </span>
+              <p className="mt-1 font-semibold text-[#1a365d] line-clamp-2">
+                {topProgram ? topProgram[0] : "—"}
+              </p>
+              <p className="text-xs text-[#64748b]">
+                {topProgram ? `${topProgram[1]} registrations` : "No data"}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-xl font-semibold text-[#1a365d]">
             Registrations by borough
