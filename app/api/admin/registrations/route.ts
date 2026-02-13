@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import {
   getRegistrationsCollection,
   getCapacityCollection,
-  BORO_CAPACITY,
+  DEFAULT_BORO_CAPACITY,
 } from "@/lib/mongodb";
 import { BOROS } from "@/types/registration";
 
@@ -46,11 +46,17 @@ export async function GET(request: Request) {
       capacity.find({}).toArray(),
     ]);
 
-    type CapacityDoc = { _id: string; confirmedCount?: number };
+    type CapacityDoc = { _id: string; confirmedCount?: number; maxCapacity?: number };
     const capacityMap = new Map<string, number>(
       (capacityDocs as unknown as CapacityDoc[]).map((d) => [
         String(d._id),
         d.confirmedCount ?? 0,
+      ])
+    );
+    const maxCapacityMap = new Map<string, number>(
+      (capacityDocs as unknown as CapacityDoc[]).map((d) => [
+        String(d._id),
+        d.maxCapacity ?? DEFAULT_BORO_CAPACITY,
       ])
     );
 
@@ -73,7 +79,7 @@ export async function GET(request: Request) {
       boro,
       confirmedCount: byBoro[boro].confirmed.length,
       waitingListCount: byBoro[boro].waiting_list.length,
-      maxConfirmed: BORO_CAPACITY,
+      maxConfirmed: maxCapacityMap.get(boro) ?? DEFAULT_BORO_CAPACITY,
     }));
 
     return NextResponse.json({

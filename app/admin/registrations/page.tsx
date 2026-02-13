@@ -3,12 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Loader2 } from "lucide-react";
 import { BOROS, DISTRICT_79_PROGRAMS } from "@/types/registration";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -215,6 +214,50 @@ export default function AdminRegistrationsPage() {
     fetchData();
   }
 
+  const [editingCapacity, setEditingCapacity] = useState<string | null>(null);
+  const [capacityValue, setCapacityValue] = useState<string>("");
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+
+  async function handleToggleStatus(r: RegistrationRow) {
+    const newStatus = r.status === "confirmed" ? "waiting_list" : "confirmed";
+    setTogglingId(r._id);
+    try {
+      const res = await fetch(`/api/admin/registrations/${r._id}${getAuthParams()}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) {
+        const json = await res.json();
+        alert("Failed to update. " + (json.error ?? ""));
+        return;
+      }
+      fetchData();
+    } finally {
+      setTogglingId(null);
+    }
+  }
+
+  async function handleSaveCapacity(boro: string) {
+    const val = parseInt(capacityValue, 10);
+    if (isNaN(val) || val < 0) {
+      alert("Please enter a valid number (0 or greater).");
+      return;
+    }
+    const res = await fetch(`/api/admin/capacity${getAuthParams()}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ boro, maxCapacity: val }),
+    });
+    if (!res.ok) {
+      const json = await res.json();
+      alert("Failed to update capacity. " + (json.error ?? ""));
+      return;
+    }
+    setEditingCapacity(null);
+    fetchData();
+  }
+
   if (submittedSecret === null) {
     return (
       <div className="min-h-screen bg-[#faf8f0]">
@@ -260,7 +303,7 @@ export default function AdminRegistrationsPage() {
     return (
       <div className="min-h-screen bg-[#faf8f0]">
         <AdminHero />
-        <div className="mx-auto max-w-5xl px-4 py-12 text-center text-[#64748b] sm:px-6">
+        <div className="mx-auto max-w-7xl px-4 py-12 text-center text-[#64748b] sm:px-6 lg:max-w-[1400px]">
           Loading…
         </div>
       </div>
@@ -271,7 +314,7 @@ export default function AdminRegistrationsPage() {
     return (
       <div className="min-h-screen bg-[#faf8f0]">
         <AdminHero />
-        <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:max-w-[1400px]">
           <Card className="border-red-200 bg-red-50/50">
             <CardContent className="pt-6">
               <p className="text-red-700">{error}</p>
@@ -295,7 +338,7 @@ export default function AdminRegistrationsPage() {
   return (
     <div className="min-h-screen bg-[#faf8f0]">
       <AdminHero />
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:max-w-[1400px]">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-xl font-semibold text-[#1a365d]">
             Registrations by borough
@@ -315,8 +358,8 @@ export default function AdminRegistrationsPage() {
         </div>
 
         <Card className="mt-6">
-          <CardContent className="p-0">
-            <Table>
+          <CardContent className="overflow-x-auto p-0">
+            <Table className="min-w-full">
               <TableHeader>
               <TableRow>
                 <TableHead>Borough</TableHead>
@@ -336,7 +379,37 @@ export default function AdminRegistrationsPage() {
                     {c.waitingListCount}
                   </TableCell>
                   <TableCell className="text-right text-[#64748b]">
-                    {c.maxConfirmed}
+                    {editingCapacity === c.boro ? (
+                      <div className="flex items-center justify-end gap-1">
+                        <input
+                          type="number"
+                          min={c.confirmedCount}
+                          value={capacityValue}
+                          onChange={(e) => setCapacityValue(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleSaveCapacity(c.boro);
+                            if (e.key === "Escape") {
+                              setEditingCapacity(null);
+                            }
+                          }}
+                          onBlur={() => handleSaveCapacity(c.boro)}
+                          autoFocus
+                          className="w-16 rounded border border-[#e2e8e8] px-2 py-1 text-right text-sm focus:border-[#0066b3] focus:outline-none focus:ring-1 focus:ring-[#0066b3]"
+                        />
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingCapacity(c.boro);
+                          setCapacityValue(String(c.maxConfirmed));
+                        }}
+                        className="rounded px-2 py-1 hover:bg-[#f1f5f9] focus:outline-none focus:ring-1 focus:ring-[#0066b3]"
+                        title="Click to edit capacity"
+                      >
+                        {c.maxConfirmed}
+                      </button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -356,16 +429,16 @@ export default function AdminRegistrationsPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">{boro}</CardTitle>
               </CardHeader>
-              <CardContent className="pt-0">
-                <Table>
+              <CardContent className="overflow-x-auto pt-0">
+                <Table className="min-w-full">
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Program</TableHead>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Created</TableHead>
+                      <TableHead className="min-w-[140px]">Name</TableHead>
+                      <TableHead className="min-w-[180px]">Program</TableHead>
+                      <TableHead className="min-w-[100px]">Title</TableHead>
+                      <TableHead className="min-w-[200px]">Email</TableHead>
+                      <TableHead className="min-w-[110px]">Status</TableHead>
+                      <TableHead className="min-w-[140px]">Created</TableHead>
                       <TableHead className="w-[100px]">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -385,15 +458,28 @@ export default function AdminRegistrationsPage() {
                           {r.email}
                         </TableCell>
                         <TableCell>
-                          <Badge
-                            variant={
-                              r.status === "confirmed" ? "success" : "warning"
+                          <button
+                            type="button"
+                            onClick={() => handleToggleStatus(r)}
+                            disabled={togglingId === r._id}
+                            title={
+                              r.status === "confirmed"
+                                ? "Click to move to waiting list"
+                                : "Click to confirm"
                             }
+                            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70 ${
+                              r.status === "confirmed"
+                                ? "bg-[#dcfce7] text-[#166534] hover:bg-[#bbf7d0]"
+                                : "bg-[#fef3c7] text-[#92400e] hover:bg-[#fde68a]"
+                            }`}
                           >
+                            {togglingId === r._id ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : null}
                             {r.status === "confirmed"
                               ? "Confirmed"
                               : "Waiting list"}
-                          </Badge>
+                          </button>
                         </TableCell>
                         <TableCell className="text-[#64748b]">
                           {r.createdAt

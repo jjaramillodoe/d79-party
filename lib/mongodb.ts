@@ -4,7 +4,10 @@ import { BOROS } from "@/types/registration";
 interface CapacityDoc {
   _id: string;
   confirmedCount: number;
+  maxCapacity?: number;
 }
+
+const DEFAULT_BORO_CAPACITY = 30;
 
 const uri = process.env.MONGODB_URI;
 if (!uri) {
@@ -33,15 +36,13 @@ export async function getDb(): Promise<Db> {
 const REGISTRATIONS = "registrations";
 const CAPACITY = "capacity";
 
-const BORO_CAPACITY = 30;
-
 export async function ensureCapacityDocs(): Promise<void> {
   const db = await getDb();
   const col = db.collection<CapacityDoc>(CAPACITY);
   for (const boro of BOROS) {
     await col.updateOne(
       { _id: boro },
-      { $setOnInsert: { confirmedCount: 0 } },
+      { $setOnInsert: { confirmedCount: 0, maxCapacity: DEFAULT_BORO_CAPACITY } },
       { upsert: true }
     );
   }
@@ -55,7 +56,12 @@ export async function tryClaimConfirmedSpot(boro: string): Promise<boolean> {
   const db = await getDb();
   const col = db.collection<CapacityDoc>(CAPACITY);
   const result = await col.findOneAndUpdate(
-    { _id: boro, confirmedCount: { $lt: BORO_CAPACITY } },
+    {
+      _id: boro,
+      $expr: {
+        $lt: ["$confirmedCount", { $ifNull: ["$maxCapacity", DEFAULT_BORO_CAPACITY] }],
+      },
+    },
     { $inc: { confirmedCount: 1 } },
     { returnDocument: "after" }
   );
@@ -113,4 +119,4 @@ export async function getCapacityCollection(): Promise<
   return db.collection<CapacityDoc>(CAPACITY);
 }
 
-export { REGISTRATIONS, CAPACITY, BORO_CAPACITY };
+export { REGISTRATIONS, CAPACITY, DEFAULT_BORO_CAPACITY };
