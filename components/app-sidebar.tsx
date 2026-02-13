@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, Home } from "lucide-react";
+import { ClipboardList, Home, LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -63,6 +63,18 @@ export function AppSidebar() {
                 <Home className="size-4" />
                 <span>Back to event</span>
               </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={() => {
+                sessionStorage.removeItem("admin_secret");
+                window.location.href = "/admin/registrations";
+              }}
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+            >
+              <LogOut className="size-4" />
+              <span>Log out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

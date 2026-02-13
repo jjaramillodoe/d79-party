@@ -2,7 +2,17 @@
 
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
-import { Pencil, Trash2, Loader2, Users, UserCheck, Clock, TrendingUp } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  Loader2,
+  Users,
+  UserCheck,
+  Clock,
+  TrendingUp,
+  MapPin,
+  GraduationCap,
+} from "lucide-react";
 import { toast } from "sonner";
 import { BOROS, DISTRICT_79_PROGRAMS } from "@/types/registration";
 import { Button } from "@/components/ui/button";
@@ -99,9 +109,13 @@ function registrationsToCsv(rows: RegistrationRow[]): string {
   return lines.join("\n");
 }
 
+const ADMIN_SECRET_KEY = "admin_secret";
+
 export default function AdminRegistrationsPage() {
   const [secret, setSecret] = useState(DEFAULT_SECRET);
-  const [submittedSecret, setSubmittedSecret] = useState<string | null>(null);
+  const [submittedSecret, setSubmittedSecret] = useState<string | null>(() =>
+    typeof window !== "undefined" ? sessionStorage.getItem(ADMIN_SECRET_KEY) : null
+  );
   const [data, setData] = useState<AdminData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -144,6 +158,7 @@ export default function AdminRegistrationsPage() {
 
   function handleSecretSubmit(e: React.FormEvent) {
     e.preventDefault();
+    sessionStorage.setItem(ADMIN_SECRET_KEY, secret);
     setSubmittedSecret(secret);
   }
 
@@ -348,60 +363,71 @@ export default function AdminRegistrationsPage() {
     <div className="p-6">
       <div className="mx-auto max-w-7xl space-y-6 lg:max-w-[1400px]">
         <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-          <Card>
+          <Card className="border-l-4 border-l-primary bg-primary/5">
             <CardContent className="pt-4">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Users className="h-4 w-4" />
-                <span className="text-xs font-medium">Total</span>
+              <div className="flex items-center gap-2">
+                <div className="rounded-lg bg-primary/15 p-2">
+                  <Users className="h-4 w-4 text-primary" />
+                </div>
+                <span className="text-xs font-medium text-muted-foreground">Total</span>
               </div>
-              <p className="mt-1 text-2xl font-bold">
+              <p className="mt-2 text-2xl font-bold text-primary">
                 {totalRegistrations}
               </p>
               <p className="text-xs text-muted-foreground">registrations</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-l-4 border-l-green-600 bg-green-500/5">
             <CardContent className="pt-4">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <UserCheck className="h-4 w-4" />
-                <span className="text-xs font-medium">Confirmed</span>
+              <div className="flex items-center gap-2">
+                <div className="rounded-lg bg-green-500/15 p-2">
+                  <UserCheck className="h-4 w-4 text-green-600" />
+                </div>
+                <span className="text-xs font-medium text-muted-foreground">Confirmed</span>
               </div>
-              <p className="mt-1 text-2xl font-bold text-green-600">
+              <p className="mt-2 text-2xl font-bold text-green-600">
                 {totalConfirmed}
               </p>
               <p className="text-xs text-muted-foreground">spots filled</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-l-4 border-l-amber-600 bg-amber-500/5">
             <CardContent className="pt-4">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Clock className="h-4 w-4" />
-                <span className="text-xs font-medium">Waiting list</span>
+              <div className="flex items-center gap-2">
+                <div className="rounded-lg bg-amber-500/15 p-2">
+                  <Clock className="h-4 w-4 text-amber-600" />
+                </div>
+                <span className="text-xs font-medium text-muted-foreground">Waiting list</span>
               </div>
-              <p className="mt-1 text-2xl font-bold text-amber-600">
+              <p className="mt-2 text-2xl font-bold text-amber-600">
                 {totalWaiting}
               </p>
               <p className="text-xs text-muted-foreground">registrations</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-l-4 border-l-blue-600 bg-blue-500/5">
             <CardContent className="pt-4">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <TrendingUp className="h-4 w-4" />
-                <span className="text-xs font-medium">Spots left</span>
+              <div className="flex items-center gap-2">
+                <div className="rounded-lg bg-blue-500/15 p-2">
+                  <TrendingUp className="h-4 w-4 text-blue-600" />
+                </div>
+                <span className="text-xs font-medium text-muted-foreground">Spots left</span>
               </div>
-              <p className="mt-1 text-2xl font-bold text-primary">
+              <p className="mt-2 text-2xl font-bold text-blue-600">
                 {spotsRemaining}
               </p>
               <p className="text-xs text-muted-foreground">of {totalCapacity} total</p>
             </CardContent>
           </Card>
-          <Card className="col-span-2 sm:col-span-1">
+          <Card className="border-l-4 border-l-violet-600 bg-violet-500/5 col-span-2 sm:col-span-1">
             <CardContent className="pt-4">
-              <span className="text-xs font-medium text-muted-foreground">
-                Most by borough
-              </span>
-              <p className="mt-1 font-semibold">
+              <div className="flex items-center gap-2">
+                <div className="rounded-lg bg-violet-500/15 p-2">
+                  <MapPin className="h-4 w-4 text-violet-600" />
+                </div>
+                <span className="text-xs font-medium text-muted-foreground">Most by borough</span>
+              </div>
+              <p className="mt-2 font-semibold text-violet-700">
                 {topBoro ? topBoro.boro : "—"}
               </p>
               <p className="text-xs text-muted-foreground">
@@ -411,12 +437,15 @@ export default function AdminRegistrationsPage() {
               </p>
             </CardContent>
           </Card>
-          <Card className="col-span-2 sm:col-span-1">
+          <Card className="border-l-4 border-l-indigo-600 bg-indigo-500/5 col-span-2 sm:col-span-1">
             <CardContent className="pt-4">
-              <span className="text-xs font-medium text-muted-foreground">
-                Most by program
-              </span>
-              <p className="mt-1 font-semibold line-clamp-2">
+              <div className="flex items-center gap-2">
+                <div className="rounded-lg bg-indigo-500/15 p-2">
+                  <GraduationCap className="h-4 w-4 text-indigo-600" />
+                </div>
+                <span className="text-xs font-medium text-muted-foreground">Most by program</span>
+              </div>
+              <p className="mt-2 font-semibold text-indigo-700 line-clamp-2">
                 {topProgram ? topProgram[0] : "—"}
               </p>
               <p className="text-xs text-muted-foreground">
