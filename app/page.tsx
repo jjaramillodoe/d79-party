@@ -1,8 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, MapPin, Users, Coffee, Award, BadgeCheck, ArrowRight, Mail, CalendarDays } from "lucide-react";
+import { Calendar, MapPin, Users, Coffee, Award, BadgeCheck, ArrowRight, Mail, CalendarDays, AlertCircle } from "lucide-react";
+import { isRegistrationPostponed } from "@/lib/registration-schedule";
+
+const POSTPONEMENT_MESSAGE =
+  "Thank you for your interest in this event. Due to the weather circumstances, we are going to postpone this to a future date. As soon as we confirm the space for Brooklyn Borough Hall we will send out another invitation.";
 
 export default function Home() {
+  const postponed = isRegistrationPostponed();
   return (
     <div className="min-h-screen bg-[#faf8f0]">
       {/* Hero — NYC blue band */}
@@ -34,7 +39,7 @@ export default function Home() {
           <div className="mt-6 flex flex-wrap items-center justify-center gap-6 sm:gap-8">
             <span className="inline-flex items-center gap-2 text-lg text-white/95 sm:text-xl">
               <Calendar className="h-5 w-5 shrink-0 text-white/90" aria-hidden />
-              Thursday, February 26 — 2:00 PM to 4:00 PM
+              {postponed ? "Postponed — Date TBD" : "Thursday, February 26 — 2:00 PM to 4:00 PM"}
             </span>
             <span className="hidden sm:inline h-6 w-px bg-white/30" aria-hidden />
             <span className="inline-flex items-center gap-2 text-lg font-semibold text-white sm:text-xl">
@@ -74,6 +79,19 @@ export default function Home() {
           </ul>
         </section>
 
+        {/* Postponement notice */}
+        {postponed && (
+          <section className="mb-12 rounded-2xl border border-amber-200 bg-amber-50 p-6 shadow-sm sm:p-7">
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-amber-800">
+              <AlertCircle className="h-5 w-5 shrink-0" aria-hidden />
+              Event postponed
+            </h2>
+            <p className="mt-2 leading-relaxed text-amber-900">
+              {POSTPONEMENT_MESSAGE}
+            </p>
+          </section>
+        )}
+
         {/* Staff-only notice — light yellow card */}
         <section className="mb-12 rounded-2xl border border-[#e8dcc4] bg-[#fffbf0] p-6 shadow-sm sm:p-7">
           <h2 className="flex items-center gap-2 text-lg font-semibold text-[#744210]">
@@ -100,7 +118,9 @@ export default function Home() {
               </div>
               <div>
                 <dt className="text-sm font-medium text-[#0066b3]">Date & time</dt>
-                <dd className="mt-0.5 text-[#1a365d]">Thursday, February 26 — 2:00 PM–4:00 PM</dd>
+                <dd className="mt-0.5 text-[#1a365d]">
+                {postponed ? "Postponed — Date TBD" : "Thursday, February 26 — 2:00 PM–4:00 PM"}
+              </dd>
               </div>
             </div>
             <div className="flex gap-3">
@@ -126,13 +146,19 @@ export default function Home() {
 
         {/* CTAs */}
         <section className="flex flex-col gap-4 sm:flex-row sm:justify-center sm:gap-5">
-          <Link
-            href="/register"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0066b3] px-7 py-4 text-base font-semibold text-white shadow-md transition hover:bg-[#004d8c] focus:outline-none focus:ring-2 focus:ring-[#0066b3] focus:ring-offset-2 focus:ring-offset-[#faf8f0]"
-          >
-            Register for the event
-            <ArrowRight className="h-5 w-5" aria-hidden />
-          </Link>
+          {postponed ? (
+            <div className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#cbd5e0] bg-[#f1f5f9] px-7 py-4 text-base font-medium text-[#64748b]">
+              Registration closed — Event postponed
+            </div>
+          ) : (
+            <Link
+              href="/register"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0066b3] px-7 py-4 text-base font-semibold text-white shadow-md transition hover:bg-[#004d8c] focus:outline-none focus:ring-2 focus:ring-[#0066b3] focus:ring-offset-2 focus:ring-offset-[#faf8f0]"
+            >
+              Register for the event
+              <ArrowRight className="h-5 w-5" aria-hidden />
+            </Link>
+          )}
         </section>
       </main>
 

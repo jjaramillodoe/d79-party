@@ -10,6 +10,7 @@ import {
 import {
   isRegistrationOpen,
   getRegistrationOpensAt,
+  isRegistrationPostponed,
 } from "@/lib/registration-schedule";
 import type {
   Boro,
@@ -54,10 +55,13 @@ async function notifyPowerAutomate(
 export async function POST(request: Request) {
   try {
     if (!isRegistrationOpen()) {
+      const postponed = isRegistrationPostponed();
       const opensAt = getRegistrationOpensAt();
-      const message = opensAt
-        ? `Registration opens on ${opensAt.toLocaleDateString("en-US", { dateStyle: "long" })} at ${opensAt.toLocaleTimeString("en-US", { timeStyle: "short", timeZone: "America/New_York" })} ET.`
-        : "Registration is not yet open.";
+      const message = postponed
+        ? "Thank you for your interest in this event. Due to the weather circumstances, we are going to postpone this to a future date. As soon as we confirm the space for Brooklyn Borough Hall we will send out another invitation."
+        : opensAt
+          ? `Registration opens on ${opensAt.toLocaleDateString("en-US", { dateStyle: "long" })} at ${opensAt.toLocaleTimeString("en-US", { timeStyle: "short", timeZone: "America/New_York" })} ET.`
+          : "Registration is not yet open.";
       return NextResponse.json(
         { error: message },
         { status: 503 }

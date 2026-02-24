@@ -15,9 +15,13 @@ const labelClasses = "block text-sm font-medium text-[#1a365d]";
 
 const WAITING_LIST_MESSAGE = "Thank you for your interest! The capacity for your selected borough has been reached. You have been added to the waiting list. You will receive a waiting list email shortly.";
 
+const POSTPONEMENT_MESSAGE =
+  "Thank you for your interest in this event. Due to the weather circumstances, we are going to postpone this to a future date. As soon as we confirm the space for Brooklyn Borough Hall we will send out another invitation.";
+
 interface RegistrationStatusResponse {
   open: boolean;
   opensAt: string | null;
+  postponed?: boolean;
 }
 
 function RegistrationCountdown({
@@ -329,6 +333,28 @@ export default function RegisterPage() {
 
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
         <div className="rounded-2xl border border-[#e2e8e8] bg-white p-6 shadow-md sm:p-8">
+          {scheduleStatus?.postponed ? (
+            <div
+              className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-6 text-center"
+              role="alert"
+            >
+              <h2 className="text-lg font-semibold text-amber-800">
+                Event postponed
+              </h2>
+              <p className="mt-3 leading-relaxed text-amber-900">
+                {POSTPONEMENT_MESSAGE}
+              </p>
+              <p className="mt-6">
+                <Link
+                  href="/"
+                  className="font-medium text-[#0066b3] underline hover:no-underline"
+                >
+                  ← Back to event
+                </Link>
+              </p>
+            </div>
+          ) : (
+            <>
           {scheduleStatus && !scheduleStatus.open && scheduleStatus.opensAt && (
             <RegistrationCountdown
               opensAt={scheduleStatus.opensAt}
@@ -504,6 +530,8 @@ export default function RegisterPage() {
               </p>
             </div>
           </form>
+          )}
+            </>
           )}
         </div>
       </div>

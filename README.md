@@ -61,7 +61,8 @@ Full-stack registration application using **Next.js 16** (App Router, TypeScript
    |----------|----------|-------------|
    | `MONGODB_URI` | Yes | MongoDB connection string (e.g. MongoDB Atlas URI) |
    | `ADMIN_SECRET` | Recommended | Secret for `/admin/registrations` |
-   | `REGISTRATION_OPENS_AT` | Optional | ISO 8601 date when registration opens (e.g. `2025-02-12T13:00:00.000Z` for 8 AM Eastern) |
+   | `REGISTRATION_POSTPONED` | Optional | Set to `true` to close registration indefinitely (event postponed) |
+   | `REGISTRATION_OPENS_AT` | Optional | ISO 8601 date when registration opens (e.g. `2025-02-12T13:00:00.000Z` for 8 AM Eastern). Ignored if `REGISTRATION_POSTPONED` is set. |
    | `PA_SECRET` | Optional | Shared secret for Power Automate email endpoints |
    | `POWER_AUTOMATE_CONFIRMATION_URL` | Optional | Power Automate flow URL for confirmed registrations |
    | `POWER_AUTOMATE_WAITING_LIST_URL` | Optional | Power Automate flow URL for waiting-list registrations |
